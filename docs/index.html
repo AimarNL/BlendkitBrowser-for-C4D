@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blendkit Browser for Cinema 4D</title>
+<meta name="description" content="A Cinema 4D plugin to browse, download and import Blendkit HDRIs, materials, models and scenes, built for your render engine.">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<meta property="og:title" content="Blendkit Browser for Cinema 4D">
+<meta property="og:description" content="Browse and import Blendkit HDRIs, materials, models and scenes inside Cinema 4D.">
+<meta property="og:image" content="assets/screenshot.png">
+<style>
+:root {
+  --bg: #ffffff; --bg2: #f3f6f8; --text: #1c2228; --muted: #55616d; --accent: #7a4de0;
+  --accent-text: #ffffff; --border: #d9e0e6; --code: #eef2f5;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171a; --bg2: #1b1f23; --text: #e6ebef; --muted: #9aa7b3; --accent: #b896ff;
+    --accent-text: #14101f; --border: #2c343b; --code: #20262b;
+  }
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--text); line-height: 1.6;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+a { color: var(--accent); }
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+header.nav { border-bottom: 1px solid var(--border); background: var(--bg); position: sticky; top: 0; z-index: 5; }
+header.nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 56px; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 650; color: var(--text); text-decoration: none; }
+.brand img { width: 28px; height: 28px; }
+nav a { margin-left: 16px; text-decoration: none; color: var(--muted); font-size: 0.95rem; }
+nav a:hover { color: var(--accent); }
+.hero { text-align: center; padding: 64px 0 40px; }
+.hero img.icon { width: 112px; height: 112px; }
+.hero h1 { font-size: clamp(2rem, 5vw, 3rem); margin: 16px 0 8px; line-height: 1.15; }
+.hero p.lead { max-width: 680px; margin: 0 auto 28px; color: var(--muted); font-size: 1.12rem; }
+.buttons { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.btn {
+  display: inline-block; padding: 11px 22px; border-radius: 8px; text-decoration: none;
+  font-weight: 600; border: 1px solid var(--accent);
+}
+.btn.primary { background: var(--accent); color: var(--accent-text); }
+.btn.secondary { color: var(--accent); background: transparent; }
+section { padding: 48px 0; border-top: 1px solid var(--border); }
+section h2 { margin: 0 0 8px; font-size: 1.7rem; }
+section p.sub { margin: 0 0 24px; color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+.card h3 { margin: 0 0 6px; font-size: 1.05rem; }
+.card p { margin: 0; color: var(--muted); font-size: 0.97rem; }
+figure { margin: 0; }
+figure img { width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--border); display: block; }
+figcaption { color: var(--muted); font-size: 0.9rem; margin-top: 8px; }
+ol.steps { padding-left: 22px; }
+ol.steps li { margin-bottom: 10px; }
+code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.92rem; }
+code { background: var(--code); padding: 2px 6px; border-radius: 5px; }
+pre { background: var(--code); padding: 14px 16px; border-radius: 10px; overflow-x: auto; margin: 12px 0; }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 640px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { background: var(--bg2); font-size: 0.92rem; }
+td:first-child { white-space: nowrap; font-weight: 600; }
+.note { border-left: 4px solid var(--accent); background: var(--bg2); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+details { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; }
+summary { cursor: pointer; font-weight: 600; }
+details p { margin: 8px 0 0; color: var(--muted); }
+footer { border-top: 1px solid var(--border); padding: 28px 0 40px; color: var(--muted); font-size: 0.92rem; text-align: center; }
+@media (max-width: 640px) { nav a:not(.keep) { display: none; } }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="assets/favicon.png" alt="">Blendkit Browser</a>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#install">Install</a>
+      <a href="#engines">Render engines</a>
+      <a href="#faq">FAQ</a>
+      <a class="keep" href="https://github.com/AimarNL/blendkit-browser-c4d">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap">
+    <div class="hero">
+      <img class="icon" src="assets/icon-256.png" alt="Blendkit Browser icon">
+      <h1>Blendkit Browser<br>for Cinema 4D</h1>
+      <p class="lead">Browse, search, download and import <strong>Blendkit</strong> HDRIs, materials, models and scenes without leaving Cinema 4D 2027, built for the render engine you choose.</p>
+      <div class="buttons">
+        <a class="btn primary" href="https://github.com/AimarNL/blendkit-browser-c4d/releases">Download</a>
+        <a class="btn secondary" href="https://github.com/AimarNL/blendkit-browser-c4d">View on GitHub</a>
+      </div>
+    </div>
+
+    <figure>
+      <img src="assets/screenshot.png" alt="Blendkit Browser window inside Cinema 4D showing the Models tab with category sidebar and thumbnail grid">
+      <figcaption>The browser window inside Cinema 4D 2027 (Models tab, Redshift selected as render engine).</figcaption>
+    </figure>
+
+    <div class="note"><strong>Color space and render engine support may not be correct.</strong> Color spaces (for example sRGB vs. linear for textures and HDRIs) and the materials and lights built for each render engine (Arnold, Redshift, Octane, Corona, V-Ray) are not fully tested and may be wrong or incomplete. Always check the result in your own scene, and please open an issue if something looks off.</div>
+    <div class="note"><strong>This plugin is only a browser.</strong> It does not host, sell or relicense any content. The license of every material, model, HDRI and scene is defined by <a href="https://www.blendkit.com">blendkit.com</a> and by the author of each asset. Check the license of each asset on the website before you use it, especially in commercial work. This is an unofficial, third-party tool and is not affiliated with Blendkit.</div>
+  </div>
+
+  <section id="what">
+    <div class="wrap">
+      <h2>What is it?</h2>
+      <p class="sub">A Cinema 4D window for the Blendkit asset library.</p>
+      <p><a href="https://www.blendkit.com">Blendkit</a> (formerly BlenderKit) is an online library of Blender assets. This plugin shows that library inside Cinema 4D and turns what you download into something Cinema 4D can use: a sky for your render engine, a material, or a model merged into your scene. The assets are Blender files, so the plugin runs Blender in the background to convert them. You never have to open Blender yourself.</p>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <h2>Features</h2>
+      <p class="sub">Everything happens in one window.</p>
+      <div class="grid">
+        <div class="card"><h3>Four asset types</h3><p>HDRIs, Materials, Models and Scenes.</p></div>
+        <div class="card"><h3>Website-like browsing</h3><p>Category sidebar with counts, thumbnail grid, sort, price filter, search and a preview-size slider.</p></div>
+        <div class="card"><h3>Render engine selector</h3><p>Arnold, Redshift, Octane, Corona, V-Ray or C4D Standard.</p></div>
+        <div class="card"><h3>Double-click to build</h3><p>Download and build in one step. Green dot for assets on disk, My Downloads, and delete for downloaded versions.</p></div>
+        <div class="card"><h3>Drag and drop</h3><p>Drag downloaded assets into the viewport. Models are merged into the open scene instead of replacing it.</p></div>
+        <div class="card"><h3>Right-click menu</h3><p>Open an asset's page on blendkit.com or copy its link.</p></div>
+        <div class="card"><h3>License notice</h3><p>A first-run notice explains that licenses come from the website, with a small reminder under the plugin.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="wrap">
+      <h2>Installation</h2>
+      <p class="sub">Cinema 4D 2027 on Windows. Blender 4.x or newer is needed in the background.</p>
+      <ol class="steps">
+        <li>Download the latest release zip from the <a href="https://github.com/AimarNL/blendkit-browser-c4d/releases">Releases page</a>, or clone the repository.</li>
+        <li>Copy the <code>BlendkitBrowser</code> folder into Cinema 4D's plugins folder: <em>Edit &gt; Preferences &gt; Open Preferences Folder</em>, then <code>plugins</code>. Remove any older copy first.</li>
+        <li>Restart Cinema 4D and open <strong>Extensions &gt; Blendkit Browser</strong>.</li>
+        <li>Read the license notice, tick the box and press <strong>Continue</strong>. blendkit.com opens in your browser.</li>
+        <li>Press <strong>Login</strong>, choose <em>Open profile page</em>, copy your <strong>API key</strong> from the website and paste it into the plugin. Browsing works without login; downloads need the key.</li>
+      </ol>
+<pre>BlendkitBrowser/
+  BlendkitBrowser.pyp        plugin entry point
+  bkit/                      plugin code (UI, API, import, materials)
+  blender_scripts/           scripts run by Blender in the background
+  res/icon.png               plugin icon</pre>
+      <h3>Quick start</h3>
+      <ol class="steps">
+        <li>Pick a tab (HDRIs, Materials, Models or Scenes), a category, and search or sort.</li>
+        <li>Choose the <strong>Render engine</strong> and, for HDRIs and materials, the <strong>Resolution</strong>.</li>
+        <li><strong>Double-click</strong> a card. Blender converts the asset in the background and it is built in Cinema 4D.</li>
+        <li>Once an asset is on disk (green dot) you can <strong>drag it into the viewport</strong>.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="engines">
+    <div class="wrap">
+      <h2>Asset types and render engines</h2>
+      <p class="sub">What you get for each type, and how it is built for each engine.</p>
+      <div class="tablewrap">
+      <table>
+        <thead><tr><th>Type</th><th>What you get</th></tr></thead>
+        <tbody>
+          <tr><td>HDRI</td><td>The image is used directly (or extracted from the .blend) and set up as an Arnold Sky, Redshift Dome Light or C4D Sky, or the Octane / Corona / V-Ray equivalent. With an Arnold Sky or Redshift dome selected, the HDRI is applied to it.</td></tr>
+          <tr><td>Material</td><td>Image textures wired to the Principled BSDF (color, roughness, normal / bump, displacement, alpha, emission) are rebuilt as a material for the chosen engine. <strong>Procedural materials are not supported.</strong></td></tr>
+          <tr><td>Model</td><td>Exported by Blender as FBX (default) or GLB and merged into the scene under a Null, with materials rebuilt for the chosen engine.</td></tr>
+          <tr><td>Scene</td><td>Same as a model, but cameras and lights are kept. Everything lands under one Null.</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <br>
+      <div class="tablewrap">
+      <table>
+        <thead><tr><th>Engine</th><th>HDRI</th><th>Materials and models</th></tr></thead>
+        <tbody>
+          <tr><td>Arnold</td><td>Arnold Sky (via C4DtoA)</td><td>A C4D material is built and converted with Arnold's own commands.</td></tr>
+          <tr><td>Redshift</td><td>RS Dome Light</td><td>OpenPBR node material; falls back to Redshift Standard, then C4D Standard.</td></tr>
+          <tr><td>Octane, Corona, V-Ray</td><td>The renderer's own environment, sky or dome command, then the texture slot is filled.</td><td>A C4D material is built and the renderer's own converter command is run. If it is not found you get a C4D Standard material and a note.</td></tr>
+          <tr><td>C4D Standard</td><td>C4D Sky</td><td>C4D Standard material.</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="note"><strong>Reminder:</strong> color space handling and the engine setups above may not be correct. Check the results in your scene.</div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <h2>How it works</h2>
+      <ol class="steps">
+        <li>The asset file (a <code>.blend</code> or an image) is downloaded with your own API key.</li>
+        <li>Blender runs in the background with the scripts in <code>blender_scripts/</code> and extracts the HDRI, the material textures or an FBX / GLB model.</li>
+        <li>The result is cached in the folder set in <em>Settings &gt; Save assets to</em>.</li>
+        <li>The plugin imports it into Cinema 4D and builds the materials for the selected render engine.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <h2>FAQ and troubleshooting</h2>
+      <details><summary>The plugin does not appear</summary><p>Check the Cinema 4D Console at startup for the line <code>Blendkit Browser v... registered</code>. Remove any older copy of the plugin folder and restart.</p></details>
+      <details><summary>Downloads fail or an asset is locked</summary><p>A Blendkit account and API key are required, and your plan decides what you can download. PRO / locked assets are not bypassed.</p></details>
+      <details><summary>"Blender not found"</summary><p>Install Blender 4.x or newer, or set its path in Settings.</p></details>
+      <details><summary>A material looks wrong</summary><p>Try another render engine and check the color space of the textures. Color space and engine setups may not be correct.</p></details>
+      <details><summary>A material is missing or plain</summary><p>Procedural Blender materials are not supported yet.</p></details>
+      <details><summary>Thumbnails are missing</summary><p>Thumbnails in WebP format cannot be read by Cinema 4D.</p></details>
+      <details><summary>Where are the logs?</summary><p>Settings &gt; Diagnostics writes the raw API responses, and everything is logged to <code>blendkit.log</code>. Both are in Cinema 4D's <code>prefs/BlendkitBrowser/</code> folder.</p></details>
+      <details><summary>What is the plugin ID?</summary><p><code>PLUGIN_ID = 1000011</code> at the top of <code>BlendkitBrowser.pyp</code> is an unregistered development ID. Register your own free ID at developers.maxon.net before distributing a modified build.</p></details>
+    </div>
+  </section>
+
+  <section id="status">
+    <div class="wrap">
+      <h2>Status and limitations</h2>
+      <div class="note">Developed and used with Cinema 4D 2027 on Windows. <strong>Color space handling and the Arnold, Redshift, Octane, Corona and V-Ray setups may not be correct.</strong> Please report anything you see, with the Console output and <code>blendkit.log</code>.</div>
+      <ul>
+        <li>The Octane, Corona and V-Ray setups depend on commands from those renderers and fall back to C4D Standard materials when a command is missing.</li>
+        <li>Procedural materials, animation and Geometry Nodes assets are not supported.</li>
+        <li>Windows only.</li>
+        <li>The plugin uses the same public API conventions as the official Blender add-on, with your own key. Please check Blendkit's terms for third-party tools.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>MIT License &copy; 2026 Aimar (plugin code only; downloaded assets follow the license on blendkit.com) &middot; <a href="https://github.com/AimarNL/blendkit-browser-c4d">Source on GitHub</a> &middot; <a href="https://github.com/AimarNL/blendkit-browser-c4d/issues">Report an issue</a></p>
+    <p>Unofficial tool. Not affiliated with Blendkit, Blender, Maxon or any render engine vendor.</p>
+  </div>
+</footer>
+
+</body>
+</html>
